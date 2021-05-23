@@ -54,14 +54,31 @@ void LED2_Init(void) {
     RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
     // Set mode of pin as alternate function (mode 10)
     GPIOA->MODER &= ~GPIO_MODER_MODE5;
-    GPIOA->MODER |= GPIO_MODER_MODE5_1;
+    // Set up PA.5 as analog out :)
+    GPIOA->MODER |= 3UL << (2*5);
     // Set alternate function 3 (011) for PA5 (TIM8_CH1N)
-    GPIOA->AFR[0] &= ~GPIO_AFRL_AFSEL5;
-    GPIOA->AFR[0] |= GPIO_AFRL_AFSEL5_1 | GPIO_AFRL_AFSEL5_0;
+    //GPIOA->AFR[0] &= ~GPIO_AFRL_AFSEL5;
+    //GPIOA->AFR[0] |= GPIO_AFRL_AFSEL5_1 | GPIO_AFRL_AFSEL5_0;
     // Set output speed of pin as low by clearing speed bits
-    GPIOA->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED5;
+    //GPIOA->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED5;
     // Set pin as no pull-up, no pull-down
-    GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD5;
+    //GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD5;
+}
+
+void DAC_init(void) {
+    // Enable DAC Clock
+    RCC->APB1ENR1 |= RCC_APB1ENR1_DAC1EN;
+
+    DAC->CR &= ~(DAC_CR_EN1 | DAC_CR_EN2);
+
+    // Set dac Mode ?? 
+    DAC->MCR &= ~(7U << 16);
+
+    DAC->CR |= DAC_CR_TEN2;
+    DAC->CR |= DAC_CR_TSEL2;
+
+    DAC->CR |= DAC_CR_EN2;
+
 }
 
 void User_Button1_Init(void) {
@@ -96,11 +113,11 @@ void TIM8_CH1_Init(void) {
     // Set count direction as up-counting: 0 = up-counting, 1 = down-counting
     TIM8->CR1 &= ~TIM_CR1_DIR;
     // Clock prescalar (16 bit value, max 65,535)
-    TIM8->PSC = 40000 - 1;
+    TIM8->PSC = 10000 - 1;
     // Auto-realod value, for up counting goes from 0->ARR
     TIM8->ARR = 1000 - 1;
     // Capture/compare register can be any value 0 < CCR < ARR
-    TIM8->CCR1 = 500;
+    TIM8->CCR1 = 800;
     // Main output enable (MOE): 0 = Disable, 1 = Enable
     TIM8->BDTR |= TIM_BDTR_MOE;
     // Clear output compare mode bits of channel 1

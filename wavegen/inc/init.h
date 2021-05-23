@@ -1,3 +1,5 @@
+#ifndef _INIT_
+#define _INIT_
 /* Setup the System Clock as 80 MHz through the PLL and HSI. */
 void System_Clock_80MHz_Init(void);
 
@@ -17,3 +19,6 @@ void TIM8_CH1_Init(void);
 /* External Interrupt line 13 Interrupt Request Handler used for PC13.
  * Toggles TIM8_CH1N */
 void EXTI15_10_IRQHandler(void);
+
+void DAC_init(void);
+#endif
