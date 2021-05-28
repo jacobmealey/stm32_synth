@@ -19,6 +19,7 @@ OBJCOPY =  	${TRIPLE}-objcopy
 CFLAGS = -g -Wall -T$(LINKER_SCRIPT)
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 --specs=nosys.specs
+CFLAGS += -Wall -Werror -Wextra -Wpedantic -Wabi
 
 ##### Project specific libraries #####
 SRC_FILES += $(wildcard src/*.c)

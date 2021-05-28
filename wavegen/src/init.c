@@ -88,7 +88,7 @@ void User_Button1_Init(void) {
     GPIOC->MODER &= ~GPIO_MODER_MODE13;
     // Set pin as no pull-up, no pull-down
     GPIOC->PUPDR &= ~GPIO_PUPDR_PUPD13;
-    
+
     /**** EXTI 13 Configuration ****/
     // Enable SYSCFG clock
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
@@ -136,8 +136,43 @@ void EXTI15_10_IRQHandler(void) {
     // Check for the EXTI 13 interrupt flag
     if ((EXTI->PR1 & EXTI_PR1_PIF13) == EXTI_PR1_PIF13) {
         // Toggle TIM8
-        TIM8->CR1 ^= TIM_CR1_CEN;
+        DAC->CR ^= DAC_CR_EN2;
         // Clear interrupt pending request by writing 1
         EXTI->PR1 |= EXTI_PR1_PIF13;
     }
+}
+
+
+void TSC_Init(void) {
+    // Enable Touch Sensor
+    RCC->AHB1ENR |= RCC_AHB1ENR_TSCEN; 
+    TSC->IER |= TSC_IER_EOAIE;
+
+    // Set up PB.4 - PB.7 to run on TSC_G2
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+    // Set gpio to alternate function :) 
+    GPIOB->MODER |= 2UL << (2 * 4);
+    GPIOB->MODER |= 2UL << (2 * 5);
+    // will this work ?? lol
+    GPIOB->AFR[0] |= GPIO_AFRL_AFSEL4_Msk & (9UL << GPIO_AFRL_AFSEL4_Pos);
+    GPIOB->AFR[0] |= GPIO_AFRL_AFSEL5_Msk & (9UL << GPIO_AFRL_AFSEL5_Pos);
+
+    // Set gpio 4 as TSC Sampler 
+    GPIOB->OTYPER |= 1 << 4;
+
+    // Set gpio 5 as TSC Sensor
+    GPIOB->OTYPER &= ~(1 << 5);
+
+    // Enable TSC interrupt
+    NVIC_SetPriority(TSC_IRQn, 1);
+    NVIC_EnableIRQ(TSC_IRQn);
+}
+
+void TSC_IRQHandler(void) {
+    // Check if end of acquisition
+    if(TSC->ISR & TSC_ISR_EOAF) {
+        GPIOA->ODR ^= 1 << 5;
+    }
+    // Clear the interrupts
+    TSC->ICR |= TSC_ICR_EOAIC;
 }
