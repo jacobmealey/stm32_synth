@@ -1,5 +1,6 @@
 #ifndef _INIT_
 #define _INIT_
+#include "key.h"
 /* Setup the System Clock as 80 MHz through the PLL and HSI. */
 void System_Clock_80MHz_Init(void);
 

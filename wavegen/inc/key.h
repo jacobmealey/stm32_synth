@@ -10,9 +10,11 @@ typedef struct key {
     int AFR;        // GPIO AFR value 
     int IOASCR;     // TSC->IOASCR for selected pin / group
     int IOCCR;      // TSC channel enable 
-    int tuned;      // tuned value for turn on value. seems different for each.
+    uint32_t tuned;      // tuned value for turn on value. seems different for each.
 } Key;
 
-void enable_key(Key *key);
-void disable_key(Key *key);
+extern volatile Key current_key;
+
+void enable_key(volatile Key *key);
+void disable_key(volatile Key *key);
 #endif
