@@ -1,6 +1,8 @@
 #ifndef _KEY_H
 #define _KEY_H
 
+#include "stm32l476xx.h"
+
 // Key is used to organise all data for each pin 
 // in the same area, as well as providing functions for 
 // enabling/disabling a single pin.

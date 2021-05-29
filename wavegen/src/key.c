@@ -1,8 +1,15 @@
 #include "key.h"
 
 void enable_key(Key *key) {
-    key->AFR |= 1;
+    // We need a way tracking which GPIO is with it.
+    GPIOB->AFR[0] |= key->AFR;
+    TSC->IOASCR |= key->IOASCR;
+    TSC->IOCCR |= key->IOCCR;
 }
+
 void disable_key(Key *key){
-    key->AFR &= ~1;
+    GPIOB->AFR[0] &= ~(key->AFR);
+    TSC->IOASCR &= ~(key->IOASCR);
+    TSC->IOCCR &= ~(key->IOCCR);
 }
+
