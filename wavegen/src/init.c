@@ -82,3 +82,28 @@ void TSC_IRQHandler(void) {
     // Clear the interrupts
     TSC->ICR |= TSC_ICR_EOAIC;
 }
+
+
+void SysTick_init(void){
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 4000 - 1;
+
+    NVIC_SetPriority(SysTick_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+    SysTick->VAL = 0;
+    SysTick->CTRL |= SysTick_CTRL_CLKSOURCE_Msk;
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
+}
+
+
+void SysTick_Handler(void){
+    static int key = 0;
+    current_key = keys[key++];
+    if(key == MAX_KEYS) key = 0;
+    // Discharge Caps
+    TSC->CR &= ~TSC_CR_IODEF;
+    // Start TSC
+    enable_key(&current_key);
+    TSC->CR |= TSC_CR_START;
+}
+        

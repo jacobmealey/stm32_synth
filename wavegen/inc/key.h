@@ -3,6 +3,7 @@
 
 #include "stm32l476xx.h"
 
+#define MAX_KEYS 2
 // Key is used to organise all data for each pin 
 // in the same area, as well as providing functions for 
 // enabling/disabling a single pin.
@@ -14,6 +15,7 @@ typedef struct key {
 } Key;
 
 extern volatile Key current_key;
+extern Key keys[MAX_KEYS];
 
 void enable_key(volatile Key *key);
 void disable_key(volatile Key *key);

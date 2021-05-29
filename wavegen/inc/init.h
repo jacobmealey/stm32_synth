@@ -24,4 +24,5 @@ void EXTI15_10_IRQHandler(void);
 void DAC_init(void);
 void TSC_Init(void);
 void TSC_IRQHandler(void);
+void SysTick_init();
 #endif
