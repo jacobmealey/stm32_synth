@@ -54,8 +54,7 @@ void LED2_Init(void) {
     RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
     // Set mode of pin as alternate function (mode 10)
     GPIOA->MODER &= ~GPIO_MODER_MODE5;
-    // Set up PA.5 as analog out :)
-    GPIOA->MODER |= 3UL << (2*5);
+    GPIOA->MODER |= 1UL << (2*5);
     // Set alternate function 3 (011) for PA5 (TIM8_CH1N)
     //GPIOA->AFR[0] &= ~GPIO_AFRL_AFSEL5;
     //GPIOA->AFR[0] |= GPIO_AFRL_AFSEL5_1 | GPIO_AFRL_AFSEL5_0;
@@ -147,6 +146,8 @@ void TSC_Init(void) {
     // Enable Touch Sensor
     RCC->AHB1ENR |= RCC_AHB1ENR_TSCEN; 
     TSC->IER |= TSC_IER_EOAIE;
+    TSC->CR &= ~TSC_CR_AM;
+    TSC->CR |= TSC_CR_TSCE;
 
     // Set up PB.4 - PB.7 to run on TSC_G2
     RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
@@ -163,15 +164,27 @@ void TSC_Init(void) {
     // Set gpio 5 as TSC Sensor
     GPIOB->OTYPER &= ~(1 << 5);
 
+    // enable analog switching
+    TSC->IOASCR |= TSC_IOASCR_G2_IO1;
+    TSC->IOASCR |= TSC_IOASCR_G2_IO2;
+    // Set PB.4 as sampling capacitor
+    TSC->IOSCR |= TSC_IOSCR_G2_IO1;
+    // Set PB.5 as channel 
+    TSC->IOCCR |= TSC_IOCCR_G2_IO2;
+
+    // enable TSC group 2
+    TSC->IOGCSR |= TSC_IOGCSR_G2E;
+
     // Enable TSC interrupt
-    NVIC_SetPriority(TSC_IRQn, 1);
-    NVIC_EnableIRQ(TSC_IRQn);
+    //NVIC_SetPriority(TSC_IRQn, 1);
+    //NVIC_EnableIRQ(TSC_IRQn);
 }
 
 void TSC_IRQHandler(void) {
+    GPIOA->ODR |= 1 << 5;
     // Check if end of acquisition
     if(TSC->ISR & TSC_ISR_EOAF) {
-        GPIOA->ODR ^= 1 << 5;
+        GPIOA->ODR |= 1 << 5;
     }
     // Clear the interrupts
     TSC->ICR |= TSC_ICR_EOAIC;
