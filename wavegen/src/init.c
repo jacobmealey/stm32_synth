@@ -154,9 +154,11 @@ void TSC_Init(void) {
     // Set gpio to alternate function :) 
     GPIOB->MODER |= 2UL << (2 * 4);
     GPIOB->MODER |= 2UL << (2 * 5);
+    GPIOB->MODER |= 2UL << (2 * 6);
     // will this work ?? lol
     GPIOB->AFR[0] |= GPIO_AFRL_AFSEL4_Msk & (9UL << GPIO_AFRL_AFSEL4_Pos);
-    GPIOB->AFR[0] |= GPIO_AFRL_AFSEL5_Msk & (9UL << GPIO_AFRL_AFSEL5_Pos);
+    //GPIOB->AFR[0] |= GPIO_AFRL_AFSEL5_Msk & (9UL << GPIO_AFRL_AFSEL5_Pos);
+    GPIOB->AFR[0] |= GPIO_AFRL_AFSEL6_Msk & (9UL << GPIO_AFRL_AFSEL6_Pos);
 
     // Set gpio 4 as TSC Sampler 
     GPIOB->OTYPER |= 1 << 4;
@@ -166,11 +168,13 @@ void TSC_Init(void) {
 
     // enable analog switching
     TSC->IOASCR |= TSC_IOASCR_G2_IO1;
-    TSC->IOASCR |= TSC_IOASCR_G2_IO2;
+    //TSC->IOASCR |= TSC_IOASCR_G2_IO2;
+    TSC->IOASCR |= TSC_IOASCR_G2_IO3;
     // Set PB.4 as sampling capacitor
     TSC->IOSCR |= TSC_IOSCR_G2_IO1;
     // Set PB.5 as channel 
-    TSC->IOCCR |= TSC_IOCCR_G2_IO2;
+    //TSC->IOCCR |= TSC_IOCCR_G2_IO2;
+    TSC->IOCCR |= TSC_IOCCR_G2_IO3;
 
     // enable TSC group 2
     TSC->IOGCSR |= TSC_IOGCSR_G2E;
@@ -182,10 +186,10 @@ void TSC_Init(void) {
 
 void TSC_IRQHandler(void) {
     if(TSC->ISR & TSC_ISR_EOAF) {
-        if(TSC->IOGXCR[1] > 34){
-                GPIOA->ODR ^= 1 << 5;
+        if(TSC->IOGXCR[1] > 25){
+            GPIOA->ODR ^= 1 << 5;
                 // shiddy debounce
-            } 
+        } 
     }
     // Clear the interrupts
     TSC->ICR |= TSC_ICR_EOAIC;
