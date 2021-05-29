@@ -176,15 +176,16 @@ void TSC_Init(void) {
     TSC->IOGCSR |= TSC_IOGCSR_G2E;
 
     // Enable TSC interrupt
-    //NVIC_SetPriority(TSC_IRQn, 1);
-    //NVIC_EnableIRQ(TSC_IRQn);
+    NVIC_SetPriority(TSC_IRQn, 1);
+    NVIC_EnableIRQ(TSC_IRQn);
 }
 
 void TSC_IRQHandler(void) {
-    GPIOA->ODR |= 1 << 5;
-    // Check if end of acquisition
     if(TSC->ISR & TSC_ISR_EOAF) {
-        GPIOA->ODR |= 1 << 5;
+        if(TSC->IOGXCR[1] > 34){
+                GPIOA->ODR ^= 1 << 5;
+                // shiddy debounce
+            } 
     }
     // Clear the interrupts
     TSC->ICR |= TSC_ICR_EOAIC;
