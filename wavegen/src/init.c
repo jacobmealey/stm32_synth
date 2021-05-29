@@ -78,6 +78,7 @@ void TSC_IRQHandler(void) {
             GPIOA->ODR &= ~(1 << 5);
         } 
     }
+    // disable the current key
     disable_key(&current_key);
     // Clear the interrupts
     TSC->ICR |= TSC_ICR_EOAIC;
@@ -86,9 +87,12 @@ void TSC_IRQHandler(void) {
 
 void SysTick_init(void){
     SysTick->CTRL = 0;
-    SysTick->LOAD = 4000 - 1;
+    // Curremt clock speed is 4MHz, LOAD at 2000 means every .5 ms
+    SysTick->LOAD = 2000 - 1;
 
+    // Enable SysTick Interrup 
     NVIC_SetPriority(SysTick_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+    // enabe SysTick
     SysTick->VAL = 0;
     SysTick->CTRL |= SysTick_CTRL_CLKSOURCE_Msk;
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
@@ -97,13 +101,18 @@ void SysTick_init(void){
 
 
 void SysTick_Handler(void){
+    // key must persist through all systick calls
+    // it keeps track of what keey is being scanned nxt
     static int key = 0;
+    // update current_key globally
     current_key = keys[key++];
+    // if we've scanned all keys go back to first
     if(key == MAX_KEYS) key = 0;
     // Discharge Caps
     TSC->CR &= ~TSC_CR_IODEF;
-    // Start TSC
+    // enable the current key
     enable_key(&current_key);
+    // Start TSC
     TSC->CR |= TSC_CR_START;
 }
         
