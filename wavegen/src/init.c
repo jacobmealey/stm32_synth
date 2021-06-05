@@ -42,28 +42,73 @@ void TSC_Init(void) {
     TSC->CR &= ~TSC_CR_AM;
     TSC->CR |= TSC_CR_TSCE;
 
-    // Set up PB.4 - PB.7 to run on TSC_G2
-    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+    // Enable port B and C 
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN | RCC_AHB2ENR_GPIOCEN;
+
     // Set gpio to alternate function :) 
-    GPIOB->MODER |= 2UL << (2 * 4);
-    GPIOB->MODER |= 2UL << (2 * 5);
-    GPIOB->MODER |= 2UL << (2 * 6);
-    // will this work ?? lol
+    // Group 1
+    GPIOB->MODER |= 2UL << (2 * 12); // G1 IO1
+    GPIOB->MODER |= 2UL << (2 * 13); // G1 IO2
+    GPIOB->MODER |= 2UL << (2 * 14); // G1 IO3
+    GPIOB->MODER |= 2UL << (2 * 15); // G1 IO4
+
+    // Group 2
+    GPIOB->MODER |= 2UL << (2 * 4); // G2 IO1
+    GPIOB->MODER |= 2UL << (2 * 5); // G2 IO2
+    GPIOB->MODER |= 2UL << (2 * 6); // G2 IO3
+    GPIOB->MODER |= 2UL << (2 * 7); // G2 IO4
+
+    // GROUP 3  -- IO1 is in GPIOA 
+    // but we don't need it
+    GPIOC->MODER |= 2UL << (2 * 10); // G3 IO2
+    GPIOC->MODER |= 2UL << (2 * 11); // G3 IO3
+    GPIOC->MODER |= 2UL << (2 * 12); // G3 IO4
+    
+    // Group 4
+    GPIOC->MODER |= 2UL << (2 * 6); // G4 IO1
+    GPIOC->MODER |= 2UL << (2 * 7); // G4 IO2
+    GPIOC->MODER |= 2UL << (2 * 8); // G4 IO3
+    GPIOC->MODER |= 2UL << (2 * 9); // G4 IO4
+
+    // Set up the first IO of each group as AF
     GPIOB->AFR[0] |= GPIO_AFRL_AFSEL4_Msk & (9UL << GPIO_AFRL_AFSEL4_Pos);
+    GPIOB->AFR[0] |= GPIO_AFRH_AFSEL12_Msk & (9UL << GPIO_AFRH_AFSEL12_Pos);
+    GPIOC->AFR[0] |= GPIO_AFRL_AFSEL6_Msk & (9UL << GPIO_AFRL_AFSEL6_Pos);
+    GPIOC->AFR[0] |= GPIO_AFRH_AFSEL10_Msk & (9UL << GPIO_AFRH_AFSEL10_Pos);
 
     // Set gpio 4 as TSC Sampler 
-    GPIOB->OTYPER |= 1 << 4;
+    GPIOB->OTYPER |= 1 << 12; // G1
+    GPIOB->OTYPER |= 1 << 4;  // G2
+    GPIOC->OTYPER |= 1 << 10; // G3
+    GPIOC->OTYPER |= 1 << 6;  // G4
 
-    // Set gpio 5 as TSC Sensor
+    // Set TSC TSC Sensor
+    // G2
     GPIOB->OTYPER &= ~(1 << 5);
+    GPIOB->OTYPER &= ~(1 << 6);
+    GPIOB->OTYPER &= ~(1 << 7);
+    // G1
+    GPIOB->OTYPER &= ~(1 << 13);
+    GPIOB->OTYPER &= ~(1 << 14);
+    GPIOB->OTYPER &= ~(1 << 15);
 
     // enable analog switching
+    TSC->IOASCR |= TSC_IOASCR_G1_IO1;
     TSC->IOASCR |= TSC_IOASCR_G2_IO1;
+    TSC->IOASCR |= TSC_IOASCR_G3_IO2;
+    TSC->IOASCR |= TSC_IOASCR_G4_IO1;
 
-    // Set PB.4 as sampling capacitor
+    // Set first IO of each group as sampling capacitor
+    TSC->IOSCR |= TSC_IOSCR_G1_IO1;
     TSC->IOSCR |= TSC_IOSCR_G2_IO1;
-    // enable TSC group 2
+    TSC->IOSCR |= TSC_IOSCR_G3_IO2;
+    TSC->IOSCR |= TSC_IOSCR_G4_IO1;
+
+    // enable TSC groups
+    TSC->IOGCSR |= TSC_IOGCSR_G1E;
     TSC->IOGCSR |= TSC_IOGCSR_G2E;
+    TSC->IOGCSR |= TSC_IOGCSR_G3E;
+    TSC->IOGCSR |= TSC_IOGCSR_G4E;
 
     // Enable TSC interrupt
     NVIC_SetPriority(TSC_IRQn, 1);
@@ -72,7 +117,9 @@ void TSC_Init(void) {
 
 void TSC_IRQHandler(void) {
     if(TSC->ISR & TSC_ISR_EOAF) {
-        if(TSC->IOGXCR[1] > current_key.tuned){
+        // This will be replaced with the dac enable flags
+        // OR the DMA start flags if we're in SIN mode.
+        if(TSC->IOGXCR[current_key.group] > current_key.tuned){
             GPIOA->ODR |= 1 << 5;
         }else{
             GPIOA->ODR &= ~(1 << 5);
@@ -88,7 +135,7 @@ void TSC_IRQHandler(void) {
 void SysTick_init(void){
     SysTick->CTRL = 0;
     // Curremt clock speed is 4MHz, LOAD at 2000 means every .5 ms
-    SysTick->LOAD = 2000 - 1;
+    SysTick->LOAD = 4000 - 1;
 
     // Enable SysTick Interrup 
     NVIC_SetPriority(SysTick_IRQn, (1 << __NVIC_PRIO_BITS) - 1);

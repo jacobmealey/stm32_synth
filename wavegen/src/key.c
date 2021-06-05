@@ -3,7 +3,12 @@
 // Disables the key passed
 void enable_key(volatile Key *key) {
     // We need a way tracking which GPIO is with it.
-    GPIOB->AFR[0] |= key->AFR;
+    //
+    if(key->gpio == 0){
+        GPIOB->AFR[0] |= key->AFR;
+    } else {
+        GPIOC->AFR[0] |= key->AFR;
+    }
     // enable analog switching for current key
     TSC->IOASCR |= key->IOASCR;
     // enable TSC channel on current key
@@ -20,6 +25,10 @@ void disable_key(volatile Key *key){
     // disable analog switching
     TSC->IOASCR &= ~(key->IOASCR);
     // disable pin afr
-    GPIOB->AFR[0] &= ~(key->AFR);
+    if(key->gpio == 0){
+        GPIOB->AFR[0] &= ~(key->AFR);
+    } else {
+        GPIOC->AFR[0] &= ~(key->AFR);
+    }
 }
 
