@@ -47,28 +47,28 @@ void TSC_Init(void) {
 
     // Set gpio to alternate function :) 
     // Group 1
-    GPIOB->MODER |= 2UL << (2 * 12); // G1 IO1
-    GPIOB->MODER |= 2UL << (2 * 13); // G1 IO2
-    GPIOB->MODER |= 2UL << (2 * 14); // G1 IO3
-    GPIOB->MODER |= 2UL << (2 * 15); // G1 IO4
+    GPIOB->MODER |= GPIO_MODER_MODE12_1; // G1 IO1
+    GPIOB->MODER |= GPIO_MODER_MODE13_1; // G1 IO2
+    GPIOB->MODER |= GPIO_MODER_MODE14_1; // G1 IO3
+    GPIOB->MODER |= GPIO_MODER_MODE15_1; // G1 IO4
 
     // Group 2
-    GPIOB->MODER |= 2UL << (2 * 4); // G2 IO1
-    GPIOB->MODER |= 2UL << (2 * 5); // G2 IO2
-    GPIOB->MODER |= 2UL << (2 * 6); // G2 IO3
-    GPIOB->MODER |= 2UL << (2 * 7); // G2 IO4
+    GPIOB->MODER |= GPIO_MODER_MODE4_1; // G2 IO1
+    GPIOB->MODER |= GPIO_MODER_MODE5_1; // G2 IO2
+    GPIOB->MODER |= GPIO_MODER_MODE6_1; // G2 IO3
+    GPIOB->MODER |= GPIO_MODER_MODE7_1; // G2 IO4
 
     // GROUP 3  -- IO1 is in GPIOA 
     // but we don't need it
-    GPIOC->MODER |= 2UL << (2 * 10); // G3 IO2
-    GPIOC->MODER |= 2UL << (2 * 11); // G3 IO3
-    GPIOC->MODER |= 2UL << (2 * 12); // G3 IO4
+    GPIOC->MODER |= GPIO_MODER_MODE10_1; // G3 IO2
+    GPIOC->MODER |= GPIO_MODER_MODE11_1; // G3 IO3
+    GPIOC->MODER |= GPIO_MODER_MODE12_1; // G3 IO4
     
     // Group 4
-    GPIOC->MODER |= 2UL << (2 * 6); // G4 IO1
-    GPIOC->MODER |= 2UL << (2 * 7); // G4 IO2
-    GPIOC->MODER |= 2UL << (2 * 8); // G4 IO3
-    GPIOC->MODER |= 2UL << (2 * 9); // G4 IO4
+    GPIOC->MODER |= GPIO_MODER_MODE6_1; // G4 IO1
+    GPIOC->MODER |= GPIO_MODER_MODE7_1; // G4 IO2
+    GPIOC->MODER |= GPIO_MODER_MODE8_1; // G4 IO3
+    GPIOC->MODER |= GPIO_MODER_MODE9_1; // G4 IO4
 
     // Set up the first IO of each group as AF
     GPIOB->AFR[0] |= GPIO_AFRL_AFSEL4_Msk & (9UL << GPIO_AFRL_AFSEL4_Pos);
@@ -77,20 +77,20 @@ void TSC_Init(void) {
     GPIOC->AFR[0] |= GPIO_AFRH_AFSEL10_Msk & (9UL << GPIO_AFRH_AFSEL10_Pos);
 
     // Set gpio 4 as TSC Sampler 
-    GPIOB->OTYPER |= 1 << 12; // G1
-    GPIOB->OTYPER |= 1 << 4;  // G2
-    GPIOC->OTYPER |= 1 << 10; // G3
-    GPIOC->OTYPER |= 1 << 6;  // G4
+    GPIOB->OTYPER |= GPIO_OTYPER_OT12; // G1
+    GPIOB->OTYPER |= GPIO_OTYPER_OT4;  // G2
+    GPIOC->OTYPER |= GPIO_OTYPER_OT10; // G3
+    GPIOC->OTYPER |= GPIO_OTYPER_OT6;  // G4
 
     // Set TSC TSC Sensor
     // G2
-    GPIOB->OTYPER &= ~(1 << 5);
-    GPIOB->OTYPER &= ~(1 << 6);
-    GPIOB->OTYPER &= ~(1 << 7);
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT5);
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT6);
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT7);
     // G1
-    GPIOB->OTYPER &= ~(1 << 13);
-    GPIOB->OTYPER &= ~(1 << 14);
-    GPIOB->OTYPER &= ~(1 << 15);
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT13);
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT14);
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT15);
 
     // enable analog switching
     TSC->IOASCR |= TSC_IOASCR_G1_IO1;
