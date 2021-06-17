@@ -6,9 +6,6 @@ Key keys[MAX_KEYS];
 volatile Key current_key;
 
 int main() {
-    LED2_Init();
-    TSC_Init();
-    SysTick_init();
 
     // TSC group 2
     int G2_tune = 26;
@@ -33,28 +30,28 @@ int main() {
     keys[2].gpio = 0;
     keys[2].group = TSC_G2;
 
-    // TSC group 1
-    int G1_tune = 29;
-    keys[3].AFR = GPIO_AFRH_AFSEL13_Msk & (9UL << GPIO_AFRH_AFSEL13_Pos);
-    keys[3].IOASCR = TSC_IOASCR_G1_IO2; 
-    keys[3].IOCCR = TSC_IOCCR_G1_IO2;
-    keys[3].tuned = G1_tune;
-    keys[3].gpio = 0;
-    keys[3].group = TSC_G1;
+    // // TSC group 1
+    // int G1_tune = 29;
+    // keys[3].AFR = GPIO_AFRH_AFSEL13_Msk & (9UL << GPIO_AFRH_AFSEL13_Pos);
+    // keys[3].IOASCR = TSC_IOASCR_G1_IO2; 
+    // keys[3].IOCCR = TSC_IOCCR_G1_IO2;
+    // keys[3].tuned = G1_tune;
+    // keys[3].gpio = 0;
+    // keys[3].group = TSC_G1;
 
-    keys[4].AFR = GPIO_AFRH_AFSEL14_Msk & (9UL << GPIO_AFRH_AFSEL14_Pos);
-    keys[4].IOASCR = TSC_IOASCR_G1_IO3; 
-    keys[4].IOCCR = TSC_IOCCR_G1_IO3;
-    keys[4].tuned = G1_tune;
-    keys[4].gpio = 0;
-    keys[4].group = TSC_G1;
+    // keys[4].AFR = GPIO_AFRH_AFSEL14_Msk & (9UL << GPIO_AFRH_AFSEL14_Pos);
+    // keys[4].IOASCR = TSC_IOASCR_G1_IO3; 
+    // keys[4].IOCCR = TSC_IOCCR_G1_IO3;
+    // keys[4].tuned = G1_tune;
+    // keys[4].gpio = 0;
+    // keys[4].group = TSC_G1;
 
-    keys[5].AFR = GPIO_AFRH_AFSEL15_Msk & (9UL << GPIO_AFRH_AFSEL15_Pos);
-    keys[5].IOASCR = TSC_IOASCR_G1_IO3; 
-    keys[5].IOCCR = TSC_IOCCR_G1_IO3;
-    keys[5].tuned = G1_tune;
-    keys[5].gpio = 0;
-    keys[5].group = TSC_G1;
+    // keys[5].AFR = GPIO_AFRH_AFSEL15_Msk & (9UL << GPIO_AFRH_AFSEL15_Pos);
+    // keys[5].IOASCR = TSC_IOASCR_G1_IO4; 
+    // keys[5].IOCCR = TSC_IOCCR_G1_IO4;
+    // keys[5].tuned = G1_tune;
+    // keys[5].gpio = 0;
+    // keys[5].group = TSC_G1;
 
     //// TSC group 3
     //int G3_tune = 60;
@@ -90,7 +87,15 @@ int main() {
     //keys[11].tuned = G4_tune;
     //keys[11].gpio = 1;
 
+    LED2_Init();
+    TSC_Init();
+    TIM8_init();
+    DAC_init();
+    SysTick_init();
+
     // Dead loop
-    while(1){}
+    while(1){
+        //DAC->SWTRIGR |= DAC_SWTRIGR_SWTRIG1;
+    }
 }
 
