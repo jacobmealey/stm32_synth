@@ -21,9 +21,11 @@ typedef struct key {
     uint32_t tuned; // tuned value for turn on value. seems different for each.
     uint8_t gpio;   // 0 = GPIOB; 1 = GPIOC
     uint8_t group;
+    uint16_t note; // freq of the note that is being pressed
 } Key;
 
 extern volatile Key current_key;
+extern volatile Key *activated_key;
 extern Key keys[MAX_KEYS];
 
 void enable_key(volatile Key *key);

@@ -35,7 +35,7 @@ void DAC_init(void) {
     DAC->CR |= DAC_CR_TEN1;
     DAC->CR |= DAC_CR_WAVE1_1;
     DAC->CR |= 0x01 << DAC_CR_TSEL1_Pos;
-    DAC->CR |= 0x8 << DAC_CR_MAMP1_Pos;
+    DAC->CR |= 0xE << DAC_CR_MAMP1_Pos;
 
     // enable channel 1
     DAC->CR |= DAC_CR_EN1;
@@ -44,6 +44,8 @@ void DAC_init(void) {
 
 
 void TIM8_init(void) {
+    // Disable the dac if it is currently being used
+    TIM8->CR1 &= ~TIM_CR1_CEN;
     // Needs a global value for frequencie 
     // depending on frequncie must change the prescalar to
     // the selected frequncie :)
@@ -53,14 +55,13 @@ void TIM8_init(void) {
     // Clock spped is 4MHz, we can use the equaction f_out = f_clock / (prescaler + 1)
     // So ... prescaler = (f_clock / f_out) - 1
     // 262 Hz is the freq of middle C. good starting point.
-    int freq = 262;
-    int prescaler = (4000000 / freq) - 1; // Make this an inline function
+    int prescaler = (1000000 / freq) - 1; // Make this an inline function
     
     // Enable TIM8
     RCC->APB2ENR |= RCC_APB2ENR_TIM8EN; 
     //TIM8->CR1 &= ~(1UL); // upcounting
-    TIM8->PSC = prescaler/1000; // set 
-    TIM8->ARR = 1; // Period is freq * 1/(PRESCALER) ?? lmao ??
+    //TIM8->PSC = prescaler/(2047); // set 
+    TIM8->ARR = prescaler/(4096*2); 
     TIM8->CR2 |= 0x02UL << TIM_CR2_MMS_Pos;
     TIM8->CR1 |= TIM_CR1_CEN;
 
@@ -152,11 +153,17 @@ void TSC_IRQHandler(void) {
         // This will be replaced with the dac enable flags
         // OR the DMA start flags if we're in SIN mode.
         if(TSC->IOGXCR[current_key.group] > current_key.tuned){
+            freq = current_key.note;
+            activated_key = &current_key;
             GPIOA->ODR |= 1 << 5;
+        }else if(activated_key == &current_key && TSC->IOGXCR[current_key.group] < current_key.tuned){
+            freq = 0;
         }else{
             GPIOA->ODR &= ~(1 << 5);
         } 
     }
+    // Reset tim8
+    TIM8_init();
     // disable the current key
     disable_key(&current_key);
     // Clear the interrupts

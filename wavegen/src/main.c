@@ -4,6 +4,8 @@
 
 Key keys[MAX_KEYS];
 volatile Key current_key;
+volatile Key *activated_key;
+volatile int freq;
 
 int main() {
 
@@ -15,6 +17,7 @@ int main() {
     keys[0].tuned = G2_tune;
     keys[0].gpio = 0;
     keys[0].group = TSC_G2;
+    keys[0].note = 440;
 
     keys[1].AFR = GPIO_AFRL_AFSEL5_Msk & (9UL << GPIO_AFRL_AFSEL5_Pos);
     keys[1].IOASCR = TSC_IOASCR_G2_IO2; 
@@ -22,6 +25,7 @@ int main() {
     keys[1].tuned = G2_tune - 1;
     keys[1].gpio = 0;
     keys[1].group = TSC_G2;
+    keys[1].note = 100;
 
     keys[2].AFR = GPIO_AFRL_AFSEL7_Msk & (9UL << GPIO_AFRL_AFSEL7_Pos);
     keys[2].IOASCR = TSC_IOASCR_G2_IO4; 
@@ -29,6 +33,7 @@ int main() {
     keys[2].tuned = G2_tune;
     keys[2].gpio = 0;
     keys[2].group = TSC_G2;
+    keys[3].note = 226;
 
     // // TSC group 1
     // int G1_tune = 29;
@@ -87,6 +92,7 @@ int main() {
     //keys[11].tuned = G4_tune;
     //keys[11].gpio = 1;
 
+    freq = 0;
     LED2_Init();
     TSC_Init();
     TIM8_init();
